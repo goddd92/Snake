@@ -8,11 +8,11 @@ namespace Snake
 {
     class Program
     {
-        const ConsoleColor Sneak_Color = ConsoleColor.Black;
+        const ConsoleColor Snake_Color = ConsoleColor.Black;
         const ConsoleColor Background_Color = ConsoleColor.White;
-        const ConsoleColor Food_Color = ConsoleColor.Gray;
+        const ConsoleColor Food_Color = ConsoleColor.Red;
 
-        public static Coordinate Sneak { get; set; }
+        public static Coordinate Snake { get; set; }
         public static Coordinate Food { get; set; }
 
         static void Main(string[] args)
@@ -47,43 +47,56 @@ namespace Snake
             }
         }
 
+        static void SetFood (int x, int y)
+        {
+            Console.BackgroundColor = Food_Color;
+            Console.SetCursorPosition(Food.X, Food.Y);
+            Console.Write(" ");
+        }
+
         static void MoveSneak(int x, int y)
         {
-            Random rnd = new Random();
             Coordinate newSneak = new Coordinate()
             {
-                X = Sneak.X + x,
-                Y = Sneak.Y + y
-            };
-
-            Coordinate newFood = new Coordinate()
-            {
-                X = rnd.Next(0, Console.WindowWidth),
-                Y = rnd.Next(0, Console.WindowHeight)
+                X = Snake.X + x,
+                Y = Snake.Y + y
             };
 
             if (CanMove(newSneak))
             {
-                RemoveSneak();
-                Console.BackgroundColor = Sneak_Color;
+                RemoveSnake();
+                Console.BackgroundColor = Snake_Color;
                 Console.SetCursorPosition(newSneak.X, newSneak.Y);
                 Console.Write(" ");
 
-                Sneak = newSneak;
+                Snake = newSneak;
+            }
+
+
+            Coordinate checkFood = new Coordinate()
+            {
+                X = Food.X,
+                Y = Food.Y
+            };
+
+            if (EatFood(newSneak, checkFood))
+            {
+                Random rnd = new Random();
+                Coordinate newFood = new Coordinate()
+                {
+                    X = rnd.Next(0, Console.WindowWidth),
+                    Y = rnd.Next(0, Console.WindowHeight)
+                };
+
+                Food = newFood;
+                SetFood(Food.X, Food.Y);
             }
         }
 
-        static void RemoveFood()
+        static void RemoveSnake ()
         {
             Console.BackgroundColor = Background_Color;
-            Console.SetCursorPosition(Food.X, Food.Y);
-            Console.WriteLine(" ");
-        }
-
-        static void RemoveSneak ()
-        {
-            Console.BackgroundColor = Background_Color;
-            Console.SetCursorPosition(Sneak.X, Sneak.Y);
+            Console.SetCursorPosition(Snake.X, Snake.Y);
             Console.WriteLine(" ");
         }
 
@@ -91,6 +104,13 @@ namespace Snake
         {
             Console.BackgroundColor = Background_Color;
             Console.Clear();
+        }
+
+        static bool EatFood (Coordinate c, Coordinate a)
+        {
+            if (a.X == c.X && a.Y == c.Y)
+                return true;
+            return false;
         }
 
         static bool CanMove (Coordinate c)
@@ -105,12 +125,21 @@ namespace Snake
         static void InitGame()
         {
             SetBackgroundColor();
+            Random rnd = new Random();
 
-            Sneak = new Coordinate()
+            Snake = new Coordinate()
             {
                 X = 0,
                 Y = 0
             };
+
+            Food = new Coordinate()
+            {
+                X = rnd.Next(1, 5),
+                Y = rnd.Next(1, 5)
+            };
+
+            SetFood(Food.X, Food.Y);
             MoveSneak(0, 0);
         }
     }
