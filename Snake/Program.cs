@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace Snake
 {
@@ -12,11 +14,13 @@ namespace Snake
         const ConsoleColor Background_Color = ConsoleColor.White;
         const ConsoleColor Food_Color = ConsoleColor.Red;
 
-        public static Coordinate Snake { get; set; }
         public static Coordinate Food { get; set; }
+        public static Coordinate SnakeHead { get; set; }
+        public static List <Coordinate> Snake = new List <Coordinate>();
 
         static void Main(string[] args)
         {
+
             InitGame();
 
             ConsoleKeyInfo keyInfo;
@@ -43,6 +47,7 @@ namespace Snake
                     case ConsoleKey.X:
                         Environment.Exit(0);
                         break;
+                Thread.Sleep(100);
                 }
             }
         }
@@ -56,30 +61,35 @@ namespace Snake
 
         static void MoveSneak(int x, int y)
         {
-            Coordinate newSneak = new Coordinate()
-            {
-                X = Snake.X + x,
-                Y = Snake.Y + y
-            };
-
-            if (CanMove(newSneak))
-            {
-                RemoveSnake();
-                Console.BackgroundColor = Snake_Color;
-                Console.SetCursorPosition(newSneak.X, newSneak.Y);
-                Console.Write(" ");
-
-                Snake = newSneak;
-            }
-
-
             Coordinate checkFood = new Coordinate()
             {
                 X = Food.X,
                 Y = Food.Y
             };
 
-            if (EatFood(newSneak, checkFood))
+            Coordinate lastmove = new Coordinate()
+            {
+                X = Snake[0].X,
+                Y = Snake[0].Y
+            };
+
+            Coordinate newMove = new Coordinate()
+            {
+                X = Snake[0].X + x,
+                Y = Snake[0].Y + y
+            };
+
+            if (CanMove(newMove))
+            {
+                RemoveSnake();
+                Console.BackgroundColor = Snake_Color;
+                Console.SetCursorPosition(newMove.X, newMove.Y);
+                Console.Write(" ");
+
+                Snake.Add(newMove);
+            }
+
+            if (EatFood(newMove, checkFood))
             {
                 Random rnd = new Random();
                 Coordinate newFood = new Coordinate()
@@ -90,14 +100,17 @@ namespace Snake
 
                 Food = newFood;
                 SetFood(Food.X, Food.Y);
+                Snake.Add(lastmove);
             }
         }
 
         static void RemoveSnake ()
         {
+            int LastPart = Snake.Count - 1;
             Console.BackgroundColor = Background_Color;
-            Console.SetCursorPosition(Snake.X, Snake.Y);
+            Console.SetCursorPosition(Snake[LastPart].X, Snake[LastPart].Y);
             Console.WriteLine(" ");
+            Snake.RemoveAt(LastPart);
         }
 
         static void SetBackgroundColor()
@@ -127,11 +140,13 @@ namespace Snake
             SetBackgroundColor();
             Random rnd = new Random();
 
-            Snake = new Coordinate()
+            SnakeHead = new Coordinate()
             {
                 X = 0,
                 Y = 0
             };
+
+            Snake.Add(SnakeHead);
 
             Food = new Coordinate()
             {
@@ -142,6 +157,8 @@ namespace Snake
             SetFood(Food.X, Food.Y);
             MoveSneak(0, 0);
         }
+
+
     }
 
     class Coordinate
