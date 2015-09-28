@@ -100,6 +100,10 @@ namespace Snake
 
                 Food = newFood;
                 SetFood(Food.X, Food.Y);
+
+                Console.BackgroundColor = Snake_Color;
+                Console.SetCursorPosition(lastmove.X, lastmove.Y);
+                Console.Write(" ");
                 Snake.Add(lastmove);
             }
         }
